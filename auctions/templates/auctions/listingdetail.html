@@ -1,0 +1,113 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+{% if listing %}
+<div class="container">
+    <h2>Listing: {{listing.title}}</h2>
+
+    {% if listing.status == "active" %}
+    <form action="{% url 'watchlist' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" value="{{ listing.id }}" name="listing_id">
+        {% if not is_in_watchlist %}
+        <button type="submit" class="btn btn-outline-info" name="watchlist-button" value="add">Add to watchlist</button>
+        {% else %}
+        <button type="submit" class="btn btn-outline-danger" name="watchlist-button" value="remove">Remove from
+            watchlist
+        </button>
+        {% endif %}
+    </form>
+    {% if is_my_listing %}
+    <form method="post" action="{% url 'closedlistings' %}">
+        {% csrf_token %}
+        <input type="hidden" value="{{ listing.id }}" name="listing_id">
+        <button type="submit" class="btn btn-outline-danger" name="close" value="close">
+            Close this Listing
+        </button>
+    </form>
+    {% endif %}
+    {% else %}
+    <div class ="container" style="background-color:#FBD28B;">
+        {% if user.username == listing.bid.highest_bidder.username %}
+        <h2>Congrats you won this auction.</h2>
+        {% endif %}
+        <h4>This is a CLOSED listing which is sold to
+            {{listing.bid.highest_bidder.username}} for ${{listing.bid.current_bid}}.</h4>
+
+    </div>
+    {% endif %}
+
+    <div class="listing image">
+        {% if listing.image %}
+        <img src="{{listing.image}}" style="width:70%;height:auto;">
+        {% else %}
+        <h4 class="ml-5 mt-5">No Image Posted</h4>
+        {% endif %}
+    </div>
+    <br>
+    <p> Details: {{ listing.description }}</p>
+    <p> Initial bid = <strong>${{ listing.initial_bid }}</strong></p>
+    {% if bid %}
+    <p> Current bid = <strong>${{ bid.current_bid }}</strong></p>
+    {% else %}
+    <p> Current bid = <strong> No Bid Yet! </strong></p>
+    {% endif %}
+    <p> Listed By = {{listing.user.username}}</p>
+    <p> Category = {{listing.category}}</p>
+    <p>Status = <b style="font-size:20px;font-weight:bold;">{{listing.status}}</b styel></p>
+    <p> Created time = {{ listing.created_datetime }}</p>
+    <hr>
+    <h3>Bid Details:</h3>
+    <hr>
+    {% if bid %}
+    <p>{{ bid.number_of_bids}} bid(s) so far.</p>
+    <p><strong>Bid leader right now: {{ bid.highest_bidder.username }}</strong></p>
+    {% else %}
+    <p><strong>No bids yet!</strong></p>
+    {% endif %}
+    <hr>
+    <!--  FORM FOR BID   -->
+    {% if listing.status == "active" %}
+    <form action="{% url 'listingdetail' listing.id %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="bid">Enter bid below: ( You should enter the bid above<strong> {% if bid %}
+                ${{ bid.current_bid }} {% else %} ${{ listing.initial_bid }} {% endif %}</strong>)</label>
+            <input type="number" step="any" class="form-control" id="bid" name="bid" style="width:200px;" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Place Bid</button>
+    </form>
+    <hr>
+    {% endif %}
+
+    <br>
+    <h3>Comments: </h3>
+    <hr>
+    {% if comments %}
+    {% for comment in comments %}
+    <div class="comments border">
+        <h4 class="ml-4"><b>User: {{ comment.commenter.username }}</b><span
+                class="ml-5">{{ comment.created_datetime }}</span></h4>
+        <hr>
+        <p class="ml-4">{{ comment.description }}</p>
+    </div>
+    <br>
+    {% endfor %}
+
+    {%else%}
+    <p><strong>No comments yet!!!</strong></p>
+    {% endif %}
+    <div class="comment-box">
+        <form action="{% url 'listingdetail' listing.id %}" method="post">
+            {% csrf_token %}
+            <textarea name="comment" required></textarea>
+            <br>
+            <button type="submit" class="btn btn-success mt-3">Comment</button>
+        </form>
+    </div>
+</div>
+
+{%else %}
+<h2>No such listing exists. Do you want to create one? => <a href="{% url 'createlistings' %}">Create Here</a></h2>
+{% endif %}
+{% endblock %}

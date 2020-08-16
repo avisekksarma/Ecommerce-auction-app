@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2>Closed Listings</h2>
+
+{% for listing in listings %}
+<div class="listings border">
+    <div class="row border">
+        <div class="col-12 col-md-2 border">
+            {% if listing.image %}
+            <img src="{{ listing.image }}" style="width:80%;height:auto;">
+            {% else %}
+            <h4 class="ml-5 mt-5">No Image Posted</h4>
+            {% endif %}
+        </div>
+        <div class="col-12 col-md-9 border">
+            <h3><a href="{% url 'listingdetail' listing.id %}">{{listing.title}}</a></h3>
+            <p> Details: {{ listing.description|truncatewords:10 }}</p>
+            <p> Initial bid = ${{ listing.initial_bid }}</p>
+            <p> Final bid = ${{ listing.bid.current_bid }}</p>
+            <p>Bid winner = <b>{{ listing.bid.highest_bidder.username }}</b></p>
+            <p> Created time = {{ listing.created_datetime }}</p>
+            <p> Status = <b>{{ listing.status }}</b></p>
+        </div>
+    </div>
+</div>
+<br>
+{% empty %}
+<hr>
+<!-- this part is for when no listings exists in active,closed or category listings-->
+<h5 class = "container"> No Listing is closed till now.</h5>
+{% endfor %}
+{% endblock %}

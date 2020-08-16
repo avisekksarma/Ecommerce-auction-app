@@ -1,0 +1,24 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="row">
+{% for a_watchlist_item in all_watchlists %}
+    <div class ="col-12 col-md-4 ">
+        <div class="watchlist">
+            {% if a_watchlist_item.listing.image %}
+            <img src = "{{ a_watchlist_item.listing.image }}" style="width:50%;height:auto;" >
+            {% else %}
+            <h4 class="ml-5 mt-5">No Image Posted</h4>
+            {% endif %}
+            <br>
+            <h3><a href ="{% url 'listingdetail' a_watchlist_item.listing.id %}">{{a_watchlist_item.listing.title}}</a></h3>
+            <p> Details: {{ a_watchlist_item.listing.description|truncatewords:10 }}</p>
+            <p> Initial bid = ${{ a_watchlist_item.listing.initial_bid }}</p>
+            <p> Created time = {{ a_watchlist_item.listing.created_datetime }}</p>
+        </div>
+    </div>
+{% empty%}
+<h3 class="ml-5">No item added to Watchlist.</h3>
+{% endfor %}
+</div>
+{% endblock %}
